@@ -93,6 +93,27 @@ export default class Runner extends EventEmitter {
         this._specs = specs
         this._caps = caps
 
+        try {
+            const wdioSync = require.resolve('@wdio/sync')
+            if (!args.autoCompileOpts) {
+                args.autoCompileOpts = {}
+            }
+
+            if (!args.autoCompileOpts.babelOpts) {
+                args.autoCompileOpts.babelOpts = {}
+            }
+
+            if (!args.autoCompileOpts.babelOpts.plugins) {
+                args.autoCompileOpts.babelOpts.plugins = []
+            }
+
+            args.autoCompileOpts.autoCompile = true
+            args.autoCompileOpts.babelOpts!.plugins.push(wdioSync)
+            log.info('@wdio/sync is enabled')
+        } catch (err) {
+            log.info('@wdio/sync is not enabled')
+        }
+
         /**
          * autocompile after parsing configs so we support ES6 features in tests with config driven by users
          */

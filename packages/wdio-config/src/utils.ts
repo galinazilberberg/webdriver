@@ -99,14 +99,14 @@ export function loadAutoCompilers(autoCompileConfig: Options.AutoCompileConfig, 
     return (
         autoCompileConfig.autoCompile &&
         (
-            loadTypeScriptCompiler(
-                autoCompileConfig.tsNodeOpts,
-                autoCompileConfig.tsConfigPathsOpts,
+            loadBabelCompiler(
+                autoCompileConfig.babelOpts,
                 requireService
             )
             ||
-            loadBabelCompiler(
-                autoCompileConfig.babelOpts,
+            loadTypeScriptCompiler(
+                autoCompileConfig.tsNodeOpts,
+                autoCompileConfig.tsConfigPathsOpts,
                 requireService
             )
         )
@@ -137,7 +137,7 @@ export function loadTypeScriptCompiler (
 
 export function loadBabelCompiler (babelOpts: Record<string, any> = {}, requireService: ModuleRequireService) {
     try {
-        requireService.resolve('@babel/register') as any
+        requireService.resolve('@babel/register')
 
         /**
          * only for testing purposes
@@ -145,6 +145,8 @@ export function loadBabelCompiler (babelOpts: Record<string, any> = {}, requireS
         if (process.env.JEST_WORKER_ID && process.env.THROW_BABEL_REGISTER) {
             throw new Error('test fail')
         }
+
+        console.log('LOAD ME with', babelOpts);
 
         (requireService.require('@babel/register') as any)(babelOpts)
         log.debug('Found \'@babel/register\' package, auto-compiling files with Babel')

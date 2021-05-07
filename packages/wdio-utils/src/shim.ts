@@ -159,30 +159,6 @@ async function executeAsync(this: any, fn: Function, retries: Retries, args: any
 
 let executeSync = executeSyncFn
 
-/**
- * shim to make sure that we only wrap commands if wdio-sync is installed as dependency
- */
-try {
-    /**
-     * only require `@wdio/sync` if `WDIO_NO_SYNC_SUPPORT` which allows us to
-     * create a smoke test scenario to test actual absence of the package
-     * (internal use only)
-     */
-    /* istanbul ignore if */
-    if (!process.env.WDIO_NO_SYNC_SUPPORT) {
-        const packageName = '@wdio/sync'
-        const wdioSync = require(packageName)
-        hasWdioSyncSupport = true
-        runFnInFiberContext = wdioSync.runFnInFiberContext
-        wrapCommand = wdioSync.wrapCommand
-        executeHooksWithArgs = wdioSync.executeHooksWithArgs
-        executeSync = wdioSync.executeSync
-        runSync = wdioSync.runSync
-    }
-} catch {
-    // do nothing
-}
-
 export {
     executeHooksWithArgs,
     runFnInFiberContext,
