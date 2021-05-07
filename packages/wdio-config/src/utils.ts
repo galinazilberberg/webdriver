@@ -146,8 +146,6 @@ export function loadBabelCompiler (babelOpts: Record<string, any> = {}, requireS
             throw new Error('test fail')
         }
 
-        console.log('LOAD ME with', babelOpts);
-
         (requireService.require('@babel/register') as any)(babelOpts)
         log.debug('Found \'@babel/register\' package, auto-compiling files with Babel')
         return true

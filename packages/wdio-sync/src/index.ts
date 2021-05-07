@@ -2,6 +2,8 @@ import logger from '@wdio/logger'
 import { PluginObj } from '@babel/core'
 import * as t from '@babel/types'
 
+import { COMMAND_NAMES } from './constants'
+
 const log = logger('@wdio/sync')
 
 interface TransformOpts {
@@ -17,7 +19,7 @@ export default function(): PluginObj<TransformOpts> {
             console.log('parserOptions', parserOptions)
         },
         visitor: {
-            ExpressionStatement (path) {
+            MemberExpression (path) {
                 /**
                  * transform any
                  *  browser.XXX(...)
@@ -25,16 +27,22 @@ export default function(): PluginObj<TransformOpts> {
                  *  await browser.XXX(...)
                  */
                 if (
-                    t.isCallExpression(path.node.expression) &&
-                    t.isMemberExpression(path.node.expression.callee) &&
-                    t.isIdentifier(path.node.expression.callee.object) &&
-                    path.node.expression.callee.object.name === 'browser'
+                    t.isIdentifier(path.node.object) &&
+                    path.node.object.name === 'browser' &&
+                    t.isIdentifier(path.node.property) &&
+                    COMMAND_NAMES.includes(path.node.property.name) &&
+                    t.isCallExpression(path.parentPath.node) &&
+                    !t.isAwaitExpression(path.parentPath.parentPath.node)
                 ) {
-                    path.replaceWith(
-                        t.expressionStatement(
-                            t.awaitExpression(path.node.expression)
-                        )
+                    path.parentPath.replaceWith(
+                        t.awaitExpression(path.parentPath.node)
                     )
+
+                    const fn = path.getFunctionParent()
+                    if (!fn?.node.async) {
+                        // @ts-expect-error
+                        fn?.node.async = true
+                    }
                 }
             }
         }
