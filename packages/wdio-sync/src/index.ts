@@ -4,7 +4,8 @@ import * as t from '@babel/types'
 
 import type { Options } from '@wdio/types'
 
-import { COMMAND_NAMES } from './constants'
+import { makeParentAsync } from './utils'
+import { COMMAND_NAMES, SELECTOR_COMMANDS } from './constants'
 
 const log = logger('@wdio/sync')
 
@@ -40,15 +41,40 @@ export default function(): PluginObj<TransformOpts> {
                     t.isCallExpression(path.parentPath.node) &&
                     !t.isAwaitExpression(path.parentPath.parentPath.node)
                 ) {
+                    makeParentAsync(path)
                     path.parentPath.replaceWith(
                         t.awaitExpression(path.parentPath.node)
                     )
+                }
 
-                    const fn = path.getFunctionParent()
-                    if (!fn?.node.async) {
-                        // @ts-expect-error
-                        fn?.node.async = true
-                    }
+                /**
+                 * transform
+                 *  $(...).$(...)
+                 * into
+                 *  (await (await $(...)).$(...))
+                 */
+                if (
+                    t.isIdentifier(path.node.property) &&
+                    SELECTOR_COMMANDS.includes(path.node.property.name) &&
+                    t.isCallExpression(path.parentPath.node) &&
+                    !t.isAwaitExpression(path.parentPath.parentPath.node)
+                ) {
+                    makeParentAsync(path)
+                    path.parentPath.replaceWith(
+                        t.awaitExpression(path.parentPath.node)
+                    )
+                }
+
+                if (
+                    t.isIdentifier(path.node.property) &&
+                    COMMAND_NAMES.includes(path.node.property.name) &&
+                    t.isCallExpression(path.parentPath.node) &&
+                    !t.isAwaitExpression(path.parentPath.parentPath.node)
+                ) {
+                    makeParentAsync(path)
+                    path.parentPath.replaceWith(
+                        t.awaitExpression(path.parentPath.node)
+                    )
                 }
             },
             ExpressionStatement (path) {
@@ -65,6 +91,8 @@ export default function(): PluginObj<TransformOpts> {
                     t.isIdentifier(path.node.expression.callee.object.callee) &&
                     path.node.expression.callee.object.callee.name === 'expect'
                 ) {
+                    makeParentAsync(path)
+
                     if (options.framework !== 'jasmine') {
                         path.node.expression.callee.object.callee.name = 'expectAsync'
                     }
@@ -73,6 +101,24 @@ export default function(): PluginObj<TransformOpts> {
                         t.expressionStatement(
                             t.awaitExpression(path.node.expression)
                         )
+                    )
+                }
+            },
+            CallExpression (path) {
+                /**
+                 * transform
+                 *  $(...)
+                 * into
+                 *  await $('...)
+                 */
+                if (
+                    t.isIdentifier(path.node.callee) &&
+                    SELECTOR_COMMANDS.includes(path.node.callee.name) &&
+                    !t.isAwaitExpression(path.parentPath.node)
+                ) {
+                    makeParentAsync(path)
+                    path.replaceWith(
+                        t.awaitExpression(path.node)
                     )
                 }
             }

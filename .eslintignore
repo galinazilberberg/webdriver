@@ -2,5 +2,6 @@
 /packages/**/node_modules
 /packages/node_modules
 /packages/**/coverage
+packages/wdio-sync/tests/__fixtures__
 /tests/typings
 *.d.ts

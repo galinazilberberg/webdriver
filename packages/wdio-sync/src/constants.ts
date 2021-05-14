@@ -16,3 +16,5 @@ export const COMMAND_NAMES = [
     ...Object.keys(browserCommands),
     ...Object.keys(elementCommands)
 ]
+
+export const SELECTOR_COMMANDS = ['$$', '$']

@@ -12,3 +12,18 @@ describe('webdriver.io page', () => {
 
 "
 `;
+
+exports[`@wdio/sync should transform element commands 1`] = `
+"\\"use strict\\";
+
+describe('webdriver.io page', () => {
+  it('should have the right title', async () => {
+    await (await $('foobar')).click();
+    await (await (await (await $('foobar')).$('foobar')).$$('foobar'))[123].click();
+    const elem = await $('foobar');
+    await elem.dragAndDrop(await $('barfoo'));
+  });
+});
+
+"
+`;
