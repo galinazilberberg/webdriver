@@ -29,7 +29,8 @@
     "@babel/register": "^7.13.16",
     "@babel/traverse": "^7.14.0",
     "@babel/types": "^7.14.1",
-    "@wdio/logger": "7.5.3"
+    "@wdio/logger": "7.5.3",
+    "@wdio/types": "^7.5.3"
   },
   "peerDependencies": {
     "webdriverio": "7.5.7"
@@ -37,5 +38,8 @@
   "publishConfig": {
     "access": "public"
   },
-  "types": "./build/index.d.ts"
+  "types": "./build/index.d.ts",
+  "devDependencies": {
+    "@babel/cli": "^7.13.16"
+  }
 }

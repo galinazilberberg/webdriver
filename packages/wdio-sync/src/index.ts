@@ -2,6 +2,8 @@ import logger from '@wdio/logger'
 import { PluginObj } from '@babel/core'
 import * as t from '@babel/types'
 
+import type { Options } from '@wdio/types'
+
 import { COMMAND_NAMES } from './constants'
 
 const log = logger('@wdio/sync')
@@ -10,13 +12,17 @@ interface TransformOpts {
     readonly opts: any
 }
 
+let options: Options.Testrunner = {
+    capabilities: []
+}
+
 log.info('plugin loaded')
 export default function(): PluginObj<TransformOpts> {
     return {
         name: '@wdio/sync',
-        manipulateOptions(_options: any, parserOptions: { plugins: string[] }) {
-            console.log('_options', _options)
-            console.log('parserOptions', parserOptions)
+        manipulateOptions(_options: any) {
+            const plugin = _options.plugins.find((p: any) => p.key === '@wdio/sync')
+            options = plugin.options
         },
         visitor: {
             MemberExpression (path) {
@@ -43,6 +49,31 @@ export default function(): PluginObj<TransformOpts> {
                         // @ts-expect-error
                         fn?.node.async = true
                     }
+                }
+            },
+            ExpressionStatement (path) {
+                /**
+                 * transform
+                 *  expect(...)
+                 * into
+                 *  await expect(...)
+                 */
+                if (
+                    t.isCallExpression(path.node.expression) &&
+                    t.isMemberExpression(path.node.expression.callee) &&
+                    t.isCallExpression(path.node.expression.callee.object) &&
+                    t.isIdentifier(path.node.expression.callee.object.callee) &&
+                    path.node.expression.callee.object.callee.name === 'expect'
+                ) {
+                    if (options.framework !== 'jasmine') {
+                        path.node.expression.callee.object.callee.name = 'expectAsync'
+                    }
+
+                    path.replaceWith(
+                        t.expressionStatement(
+                            t.awaitExpression(path.node.expression)
+                        )
+                    )
                 }
             }
         }

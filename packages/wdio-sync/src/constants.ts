@@ -1,6 +1,6 @@
 import * as protocols from '@wdio/protocols'
 import browserCommands from 'webdriverio/build/commands/browser'
-import elementCommands from 'webdriverio/build/commands/browser'
+import elementCommands from 'webdriverio/build/commands/element'
 
 export const COMMAND_NAMES = [
     // protocol commands
