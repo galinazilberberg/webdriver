@@ -108,7 +108,12 @@ export default class Runner extends EventEmitter {
             }
 
             args.autoCompileOpts.autoCompile = true
-            args.autoCompileOpts.babelOpts!.plugins.push(wdioSync)
+            args.autoCompileOpts.babelOpts!.plugins.push([
+                wdioSync,
+                {
+                    wdioConfig: {}
+                }
+            ])
             log.info('@wdio/sync is enabled')
         } catch (err) {
             log.info('@wdio/sync is not enabled')

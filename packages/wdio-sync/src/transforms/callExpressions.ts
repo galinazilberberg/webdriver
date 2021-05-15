@@ -47,7 +47,7 @@ export default function CallExpression (path: NodePath<t.CallExpression>) {
         )
 
         /**
-         * add p-iterator import
+         * add p-iteration import
          */
         if (!hasIteratorImport) {
             hasIteratorImport = true
@@ -69,7 +69,7 @@ export default function CallExpression (path: NodePath<t.CallExpression>) {
                         ]),
                         t.callExpression(
                             t.identifier('require'),
-                            [t.stringLiteral('p-iterator')]
+                            [t.stringLiteral('p-iteration')]
                         )
                     )
                 ]),

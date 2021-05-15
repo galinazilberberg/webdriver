@@ -20,7 +20,7 @@ export default function ExpressionStatement (path: NodePath<t.ExpressionStatemen
     ) {
         makeParentAsync(path)
 
-        if (state.opts.wdioConfig.framework !== 'jasmine') {
+        if (state.opts.wdioConfig.framework === 'jasmine') {
             path.node.expression.callee.object.callee.name = 'expectAsync'
         }
 
