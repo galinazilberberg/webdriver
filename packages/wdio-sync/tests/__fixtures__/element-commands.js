@@ -5,5 +5,8 @@ describe('webdriver.io page', () => {
 
         const elem = $('foobar')
         elem.dragAndDrop($('barfoo'))
+
+        const texts = $$('div').map((div) => div.getText())
+        const elemWithText = $$('div').find((div) => div.getText() === 'foobar')
     })
 })

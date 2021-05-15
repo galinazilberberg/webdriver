@@ -18,3 +18,20 @@ export const COMMAND_NAMES = [
 ]
 
 export const SELECTOR_COMMANDS = ['$$', '$']
+export const ARRAY_METHODS = [
+    'forEach',
+    'forEachSeries',
+    'map',
+    'mapSeries',
+    'find',
+    'findSeries',
+    'findIndex',
+    'findIndexSeries',
+    'some',
+    'someSeries',
+    'every',
+    'everySeries',
+    'filter',
+    'filterSeries',
+    'reduce'
+]
