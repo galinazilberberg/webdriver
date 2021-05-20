@@ -1,4 +1,5 @@
 import logger from '@wdio/logger'
+import iterators from 'p-iteration'
 
 const log = logger('@wdio/utils:shim')
 
@@ -111,8 +112,6 @@ let wrapCommand = function wrapCommand<T>(commandName: string, fn: Function, pro
             Promise.resolve(promise).then((ctx: any) => cmd.call(ctx, ...args)),
             {
                 get: (target, prop: string) => {
-                    console.log('ACCESS PROP', prop)
-
                     if (ELEMENT_QUERY_COMMANDS.includes(prop)) {
                         return wrapCommand(prop, propertiesObject[prop].value, propertiesObject)
                     }
@@ -127,21 +126,26 @@ let wrapCommand = function wrapCommand<T>(commandName: string, fn: Function, pro
                         )
                     }
 
-                    if (commandName.endsWith('$$') && prop === 'map') {
+                    if (commandName.endsWith('$$') && typeof iterators[prop as keyof typeof iterators] === 'function') {
                         return (mapIterator: Function) => wrapElementFn(
                             target,
                             function (this: any, mapIterator: Function) {
-                                return Promise.all(this.map(mapIterator))
+                                // @ts-expect-error
+                                return iterators[prop as keyof typeof iterators](this, mapIterator)
                             },
                             [mapIterator]
                         )
+                    }
+
+                    if (prop === 'length') {
+                        return target.then((res) => res.length)
                     }
 
                     if (prop === 'then') {
                         return target[prop].bind(target)
                     }
 
-                    throw new Error(`Can't access property "${prop}" from element query, await first`)
+                    throw new Error(`Can't access property "${prop}" from element query`)
                 }
             }
         )
