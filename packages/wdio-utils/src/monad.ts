@@ -43,7 +43,7 @@ export default function WebDriver (options: Record<string, any>, modifier?: Func
 
         /**
          * allow to wrap commands if necessary
-         * e.g. in wdio-cli to make them synchronous
+         * e.g. in wdio-cli to allow element chaining
          */
         if (typeof commandWrapper === 'function') {
             for (const [commandName, { value }] of Object.entries(propertiesObject)) {
@@ -51,7 +51,7 @@ export default function WebDriver (options: Record<string, any>, modifier?: Func
                     continue
                 }
 
-                propertiesObject[commandName].value = commandWrapper(commandName, value)
+                propertiesObject[commandName].value = commandWrapper(commandName, value, propertiesObject)
                 propertiesObject[commandName].configurable = true
             }
         }

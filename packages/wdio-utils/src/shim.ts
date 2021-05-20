@@ -11,6 +11,8 @@ interface Retries {
     attempts: number
 }
 
+const ELEMENT_QUERY_COMMANDS = ['$', '$$', 'custom$', 'custom$$', 'shadow$', 'shadow$$', 'react$', 'react$$']
+
 let executeHooksWithArgs = async function executeHooksWithArgsShim<T> (hookName: string, hooks: Function | Function[] = [], args: any[] = []): Promise<(T | Error)[]> {
     /**
      * make sure hooks are an array of functions
@@ -64,13 +66,17 @@ let runFnInFiberContext = function (fn: Function) {
     }
 }
 
+interface PropertiesObject {
+    [key: string]: PropertyDescriptor
+}
+
 /**
  * wrap command to enable before and after command to be executed
  * @param commandName name of the command (e.g. getTitle)
  * @param fn          command function
  */
-let wrapCommand = function wrapCommand<T>(commandName: string, fn: Function): (...args: any) => Promise<T> {
-    return async function wrapCommandFn(this: any, ...args: any[]) {
+let wrapCommand = function wrapCommand<T>(commandName: string, fn: Function, propertiesObject: PropertiesObject): (...args: any) => Promise<T> {
+    async function wrapCommandFn(this: any, ...args: any[]) {
         const beforeHookArgs = [commandName, args]
         if (!inCommandHook && this.options.beforeCommand) {
             inCommandHook = true
@@ -99,6 +105,55 @@ let wrapCommand = function wrapCommand<T>(commandName: string, fn: Function): (.
 
         return commandResult
     }
+
+    function wrapElementFn (promise: Promise<any>, cmd: Function, args: any[]): any {
+        return new Proxy(
+            Promise.resolve(promise).then((ctx: any) => cmd.call(ctx, ...args)),
+            {
+                get: (target, prop: string) => {
+                    console.log('ACCESS PROP', prop)
+
+                    if (ELEMENT_QUERY_COMMANDS.includes(prop)) {
+                        return wrapCommand(prop, propertiesObject[prop].value, propertiesObject)
+                    }
+
+                    if (commandName.endsWith('$$') && prop === 'get') {
+                        return (index: number) => wrapElementFn(
+                            target,
+                            function (this: any, index: number) {
+                                return this[index]
+                            },
+                            [index]
+                        )
+                    }
+
+                    if (commandName.endsWith('$$') && prop === 'map') {
+                        return (mapIterator: Function) => wrapElementFn(
+                            target,
+                            function (this: any, mapIterator: Function) {
+                                return Promise.all(this.map(mapIterator))
+                            },
+                            [mapIterator]
+                        )
+                    }
+
+                    if (prop === 'then') {
+                        return target[prop].bind(target)
+                    }
+
+                    throw new Error(`Can't access property "${prop}" from element query, await first`)
+                }
+            }
+        )
+    }
+
+    if (ELEMENT_QUERY_COMMANDS.includes(commandName)) {
+        return function wrapSyncCommand(this: any, ...args: any[]): any {
+            return wrapElementFn(this, wrapCommandFn, args)
+        }
+    }
+
+    return wrapCommandFn
 }
 
 /**
