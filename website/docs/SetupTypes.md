@@ -162,33 +162,6 @@ Using WebdriverIO in standalone mode still gives you access to all protocol comm
 
 If no specific options are set WebdriverIO will try to find a browser driver on `http://localhost:4444/` and automatically switches to the Chrome DevTools protocol and Puppeteer as automation engine if such a driver can't be found. If you like to run based on WebDriver you need to either start that driver manually or through a script or [NPM package](https://www.npmjs.com/package/chromedriver).
 
-You can use the `@wdio/sync` package to transform all commands so they run synchronously. This especially simplifies your test as you don't have to deal with `async/await` anymore. Here is an example how you can run synchronous commands with WebdriverIO in a standalone script:
-
-```js
-// standalone.js
-const { remote } = require('webdriverio')
-const sync = require('@wdio/sync').default
-
-remote({
-    runner: 'local',
-    outputDir: __dirname,
-    capabilities: {
-        browserName: 'chrome'
-    }
-}).then((browser) => sync(() => {
-    browser.url('https://webdriver.io')
-    console.log(browser.getTitle())
-    browser.deleteSession()
-}))
-```
-
-If you now run the file, it will return the title:
-
-```bash
-$ node standalone.js
-WebdriverIO · Next-gen browser and mobile automation test framework for Node.js
-```
-
 ### Package API
 
 Similar as to the protocol packages (`webdriver` and `devtools`) you can also use the WebdriverIO package APIs to manage sessions. The APIs can be imported using `import { remote, attach, multiremote } from 'webdriverio` and contain the following functionality:

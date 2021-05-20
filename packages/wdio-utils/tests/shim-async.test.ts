@@ -5,10 +5,6 @@ import {
     executeAsync, runSync, wrapCommand
 } from '../src/shim'
 
-jest.mock('@wdio/sync', () => {
-    throw new Error('Does not exist')
-})
-
 const globalAny: any = global
 
 beforeEach(() => {

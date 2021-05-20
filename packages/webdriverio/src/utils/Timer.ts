@@ -31,7 +31,6 @@ class Timer {
     ) {
         /**
          * only wrap waitUntil condition if:
-         *  - wdio-sync is installed
          *  - function name is not async
          *  - we run with the wdio testrunner
          */

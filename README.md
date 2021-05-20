@@ -67,7 +67,6 @@ The maintainers of WebdriverIO and thousands of other packages are working with 
 - [@wdio/repl](https://github.com/webdriverio/webdriverio/tree/main/packages/wdio-repl) - A WDIO helper utility to provide a repl interface for WebdriverIO
 - [@wdio/reporter](https://github.com/webdriverio/webdriverio/tree/main/packages/wdio-reporter) - A WebdriverIO utility to help reporting all events
 - [@wdio/runner](https://github.com/webdriverio/webdriverio/tree/main/packages/wdio-runner) - A WebdriverIO service that runs tests in arbitrary environments
-- [@wdio/sync](https://github.com/webdriverio/webdriverio/tree/main/packages/wdio-sync) - A WebdriverIO plugin. Helper module to run WebdriverIO commands synchronously
 - [@wdio/utils](https://github.com/webdriverio/webdriverio/tree/main/packages/wdio-utils) - A WDIO helper utility to provide several utility functions used across the project
 
 ### Reporter

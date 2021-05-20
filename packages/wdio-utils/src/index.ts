@@ -33,7 +33,7 @@ export {
     sleep,
 
     /**
-     * wdio-sync shim
+     * shim
      */
     wrapCommand,
     executeSync,

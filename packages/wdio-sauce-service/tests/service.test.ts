@@ -185,8 +185,8 @@ test('afterTest', () => {
     const stack = 'Error: Expected true to equal false.\n' +
         '    at <Jasmine>\n' +
         '    at UserContext.<anonymous> (/Users/test/specs/example.spec.js:12:44)\n' +
-        '    at UserContext.executeSync (/Users/node_modules/@wdio/sync/build/index.js:25:22)\n' +
-        '    at /Users/node_modules/@wdio/sync/build/index.js:46:68'
+        '    at UserContext.executeSync (/Users/node_modules/@wdio/utils/build/index.js:25:22)\n' +
+        '    at /Users/node_modules/@wdio/utils/build/index.js:46:68'
     service['_isUP'] = true
     service.afterTest({}, {}, {
         error: {

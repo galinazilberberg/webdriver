@@ -5,7 +5,7 @@ jest.mock('../../src/shim', () => ({
     executeHooksWithArgs: jest.fn(),
     runSync: (fn, { attempts, limit }, args = []) => async (resolve, reject) => {
         try {
-            return resolve(await fn('@wdio/sync', attempts, limit, ...args))
+            return resolve(await fn('result', attempts, limit, ...args))
         } catch (err) {
             reject(err)
         }
@@ -30,7 +30,7 @@ describe('testFnWrapper', () => {
         const args = buildArgs(origFn, undefined, () => ['beforeFnArgs'], () => [{ foo: 'bar', description: 'foo' }, 'context'])
         const result = await testFnWrapper.call({ test: { fullTitle: () => 'full title' } }, ...args)
 
-        expect(result).toBe('@wdio/sync: FooBar 0 0')
+        expect(result).toBe('result: FooBar 0 0')
         expect(executeHooksWithArgs).toBeCalledTimes(2)
 
         expect(
@@ -62,7 +62,7 @@ describe('testFnWrapper', () => {
         const args = buildArgs(origFn, undefined, () => ['beforeFnArgs'], () => [{ foo: 'bar' }, 2, 3, 4])
         const result = await testFnWrapper(...args)
 
-        expect(result).toBe('@wdio/sync: FooBar 0 0')
+        expect(result).toBe('result: FooBar 0 0')
         expect(executeHooksWithArgs).toBeCalledTimes(2)
 
         delete executeHooksWithArgs.mock.calls[1][1][2].duration

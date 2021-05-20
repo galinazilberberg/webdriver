@@ -165,8 +165,7 @@ export default function WebDriver (options: Record<string, any>, modifier?: Func
             const result = func.apply(this, origCommand ? [origCommand, ...args] : args)
 
             /**
-             * always transform result into promise as we don't know whether or not
-             * the user is running tests with wdio-sync or not
+             * always transform result into promise
              */
             Promise.resolve(result).then((res) => {
                 log.info('RESULT', res)

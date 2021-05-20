@@ -7,7 +7,7 @@ import { ELEMENT_KEY } from './constants'
  * This method is an command wrapper for elements that checks if a command is called
  * that wasn't found on the page and automatically waits for it
  *
- * @param  {Function} fn  commandWrap from wdio-sync package (or shim if not running in sync)
+ * @param  {Function} fn  commandWrap (or shim if not running in sync)
  */
 export const elementErrorHandler = (fn: Function) => (commandName: string, commandFn: Function) => {
     return function elementErrorHandlerCallback (this: WebdriverIO.Element, ...args: any[]) {

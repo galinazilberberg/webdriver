@@ -59,8 +59,8 @@ export function testFailedWithAssertionErrorFromExpectWebdriverIO() {
             'Expected: \u001b[32m"displayed"\u001b[39m\n' +
             'Received: \u001b[31m"\u001b[7mnot \u001b[27mdisplayed"\u001b[39m\n' +
             '    at World.<anonymous> (then.js:271:21)\n' +
-            '    at World.executeSync (node_modules/@wdio/sync/build/index.js:56:18)\n' +
-            '    at node_modules/@wdio/sync/build/index.js:82:70',
+            '    at World.executeSync (node_modules/@wdio/utils/build/index.js:56:18)\n' +
+            '    at node_modules/@wdio/utils/build/index.js:82:70',
             name: 'Error',
         }
     ]
@@ -74,8 +74,8 @@ export function testFailedWithAssertionErrorFromExpectWebdriverIO() {
             'Expected: \u001b[32m"displayed"\u001b[39m\n' +
             'Received: \u001b[31m"\u001b[7mnot \u001b[27mdisplayed"\u001b[39m\n' +
             '    at World.<anonymous> (then.js:271:21)\n' +
-            '    at World.executeSync (node_modules/@wdio/sync/build/index.js:56:18)\n' +
-            '    at node_modules/@wdio/sync/build/index.js:82:70',
+            '    at World.executeSync (node_modules/@wdio/utils/build/index.js:56:18)\n' +
+            '    at node_modules/@wdio/utils/build/index.js:82:70',
             name: 'Error',
         }
     return Object.assign(testState(), { errors, error, state: 'failed', end: '2018-05-14T15:17:21.631Z', _duration: 2730 })
