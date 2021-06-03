@@ -12,14 +12,16 @@ import RunnerStats from './stats/runner'
 import { AfterCommandArgs, BeforeCommandArgs, CommandArgs, Tag, Argument } from './types'
 
 type CustomWriteStream = { write: (content: any) => boolean }
+const ROOT_SUITE = '(root)'
 
 export default class WDIOReporter extends EventEmitter {
+    private _currentSuites: Map<any, SuiteStats> = new Map()
+
     outputStream: WriteStream | CustomWriteStream
     failures = 0
     suites: Record<string, SuiteStats> = {}
     hooks: Record<string, HookStats> = {}
     tests: Record<string, TestStats> ={}
-    currentSuites: SuiteStats[] = []
     counts = {
         suites: 0,
         tests: 0,
@@ -49,11 +51,12 @@ export default class WDIOReporter extends EventEmitter {
         let currentTest: TestStats
 
         const rootSuite = new SuiteStats({
-            title: '(root)',
-            fullTitle: '(root)',
+            uid: ROOT_SUITE,
+            title: ROOT_SUITE,
+            fullTitle: ROOT_SUITE,
             file: ''
         })
-        this.currentSuites.push(rootSuite)
+        this._currentSuites.set(rootSuite.uid, rootSuite)
 
         this.on('client:beforeCommand', this.onBeforeCommand.bind(this))
         this.on('client:afterCommand', this.onAfterCommand.bind(this))
@@ -78,16 +81,16 @@ export default class WDIOReporter extends EventEmitter {
             }
 
             const suite = new SuiteStats(params)
-            const currentSuite = this.currentSuites[this.currentSuites.length - 1]
+            const currentSuite = this._getCurrentSuite(suite.parent)
             currentSuite.suites.push(suite)
-            this.currentSuites.push(suite)
+            this._currentSuites.set(suite.title, suite)
             this.suites[suite.uid] = suite
             this.onSuiteStart(suite)
         })
 
         this.on('hook:start', /* istanbul ignore next */ (hook: Hook) => {
             const hookStats = new HookStats(hook)
-            const currentSuite = this.currentSuites[this.currentSuites.length - 1]
+            const currentSuite = this._getCurrentSuite(hook.parent)
             currentSuite.hooks.push(hookStats)
             currentSuite.hooksAndTests.push(hookStats)
             this.hooks[hook.uid!] = hookStats
@@ -104,7 +107,7 @@ export default class WDIOReporter extends EventEmitter {
         this.on('test:start', /* istanbul ignore next */ (test: Test) => {
             test.retries = this.retries
             currentTest = new TestStats(test)
-            const currentSuite = this.currentSuites[this.currentSuites.length - 1]
+            const currentSuite = this._getCurrentSuite(test.parent)
             currentSuite.tests.push(currentTest)
             currentSuite.hooksAndTests.push(currentTest)
             this.tests[test.uid] = currentTest
@@ -138,7 +141,7 @@ export default class WDIOReporter extends EventEmitter {
 
         this.on('test:pending', (test: Test) => {
             test.retries = this.retries
-            const currentSuite = this.currentSuites[this.currentSuites.length - 1]
+            const currentSuite = this._getCurrentSuite(test.parent)
             currentTest = new TestStats(test)
 
             /**
@@ -174,7 +177,7 @@ export default class WDIOReporter extends EventEmitter {
         this.on('suite:end',  /* istanbul ignore next */(suite: Suite) => {
             const suiteStat = this.suites[suite.uid!]
             suiteStat.complete()
-            this.currentSuites.pop()
+            this._currentSuites.delete(suite.title)
             this.onSuiteEnd(suiteStat)
         })
 
@@ -207,6 +210,17 @@ export default class WDIOReporter extends EventEmitter {
             }
             currentTest.output.push(Object.assign(payload, { type: 'result' }))
         })
+    }
+
+    private _getCurrentSuite (parentId?: string) {
+        const parentSuiteId = parentId || ROOT_SUITE
+        const currentSuite = this._currentSuites.get(parentSuiteId)
+
+        if (!currentSuite) {
+            throw new Error(`Couldn't find parent suite with uid ${parentSuiteId}`)
+        }
+
+        return currentSuite
     }
 
     /**
