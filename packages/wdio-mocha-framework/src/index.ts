@@ -249,7 +249,7 @@ class MochaAdapter {
 
         if (params.payload) {
             message.title = params.payload.title
-            message.parent = params.payload.parent ? params.payload.parent.title : null
+            message.parent = params.payload.parent ? params.payload.parent.uid : null
 
             message.fullTitle = params.payload.fullTitle ? params.payload.fullTitle() : message.parent + ' ' + message.title
             message.pending = params.payload.pending || false

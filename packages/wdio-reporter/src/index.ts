@@ -83,7 +83,7 @@ export default class WDIOReporter extends EventEmitter {
             const suite = new SuiteStats(params)
             const currentSuite = this._getCurrentSuite(suite.parent)
             currentSuite.suites.push(suite)
-            this._currentSuites.set(suite.title, suite)
+            this._currentSuites.set(suite.uid, suite)
             this.suites[suite.uid] = suite
             this.onSuiteStart(suite)
         })
@@ -177,7 +177,7 @@ export default class WDIOReporter extends EventEmitter {
         this.on('suite:end',  /* istanbul ignore next */(suite: Suite) => {
             const suiteStat = this.suites[suite.uid!]
             suiteStat.complete()
-            this._currentSuites.delete(suite.title)
+            this._currentSuites.delete(suite.uid)
             this.onSuiteEnd(suiteStat)
         })
 
