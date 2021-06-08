@@ -2,6 +2,8 @@ import iterators from 'p-iteration'
 import logger from '@wdio/logger'
 import { Clients } from '@wdio/types'
 
+import { QUERY_COMMANDS, ELEMENT_PROPS } from './constants'
+
 const log = logger('@wdio/utils:shim')
 
 let inCommandHook = false
@@ -28,9 +30,6 @@ interface PropertiesObject {
 declare global {
     var _HAS_FIBER_CONTEXT: boolean
 }
-
-const ELEMENT_QUERY_COMMANDS = ['$', '$$', 'custom$', 'custom$$', 'shadow$', 'shadow$$', 'react$', 'react$$']
-const ELEMENT_PROPS = ['elementId', 'error', 'selector', 'parent', 'index', 'isReactElement', 'length']
 
 /**
  * shim to make sure that we only wrap commands if wdio-sync is installed as dependency
@@ -159,7 +158,7 @@ let wrapCommand = function wrapCommand<T>(commandName: string, fn: Function, pro
                      * await elem.$('bar')
                      * ```
                      */
-                    if (ELEMENT_QUERY_COMMANDS.includes(prop)) {
+                    if (QUERY_COMMANDS.includes(prop as any)) {
                         return wrapCommand(prop, propertiesObject[prop].value, propertiesObject)
                     }
 
@@ -204,7 +203,7 @@ let wrapCommand = function wrapCommand<T>(commandName: string, fn: Function, pro
                      * const elemAmount = await $$('foo').length
                      * ```
                      */
-                    if (ELEMENT_PROPS.includes(prop)) {
+                    if (ELEMENT_PROPS.includes(prop as any)) {
                         return target.then((res) => res[prop])
                     }
 
@@ -253,7 +252,7 @@ let wrapCommand = function wrapCommand<T>(commandName: string, fn: Function, pro
          */
         const command = hasWdioSyncSupport && wdioSync && !runAsync
             ? wdioSync!.wrapCommand(commandName, fn)
-            : ELEMENT_QUERY_COMMANDS.includes(commandName)
+            : QUERY_COMMANDS.includes(commandName as any)
                 ? function chainElementQuery(this: Promise<Clients.Browser>, ...args: any[]): any {
                     return wrapElementFn(this, wrapCommandFn, args)
                 }

@@ -12,6 +12,7 @@ import type { Location } from './commands/element/getLocation'
 import type { Size } from './commands/element/getSize'
 
 export type BrowserCommandsType = typeof BrowserCommands
+export type BrowserCommandsTypeAsync = Omit<BrowserCommandsType, keyof ChainableElementPromise<WebdriverIO.Element>> & ChainableElementPromise<WebdriverIO.Element> & ChainableElementsPromise<WebdriverIO.Element>
 export type BrowserCommandsTypeSync = {
     [K in keyof Omit<BrowserCommandsType, 'execute' | 'call'>]: (...args: Parameters<BrowserCommandsType[K]>) => ThenArg<ReturnType<BrowserCommandsType[K]>>
 } & {
@@ -26,6 +27,7 @@ export type BrowserCommandsTypeSync = {
     ) => ReturnValue,
 }
 export type ElementCommandsType = typeof ElementCommands
+export type ElementCommandsTypeAsync = Omit<ElementCommandsType, keyof ChainableElementPromise<WebdriverIO.Element>> & ChainableElementPromise<WebdriverIO.Element> & ChainableElementsPromise<WebdriverIO.Element>
 export type ElementCommandsTypeSync = {
     [K in keyof Omit<ElementCommandsType, 'getLocation' | 'getSize'>]: (...args: Parameters<ElementCommandsType[K]>) => ThenArg<ReturnType<ElementCommandsType[K]>>
 } & {
@@ -157,6 +159,46 @@ export interface CustomInstanceCommands<T> {
     ): void
 }
 
+/**
+ * type element chaining
+ */
+export interface ChainableElementPromise<T> extends Promise<T> {
+    $ (selector: Selector): ChainableElementPromise<T>
+    $$ (selector: Selector): ChainableElementsPromise<T>
+    custom$ (selector: string): ChainableElementPromise<T>
+    custom$$ (selector: string): ChainableElementsPromise<T>
+    react$ (selector: string): ChainableElementPromise<T>
+    react$$ (selector: string): ChainableElementsPromise<T>
+    shadow$ (selector: string): ChainableElementPromise<T>
+    shadow$$ (selector: string): ChainableElementsPromise<T>
+}
+
+// const a: Promise<'aa'>
+// a.then
+
+export interface ChainableElementsPromise<T> {
+    get (index: number): ChainableElementPromise<T>
+
+    /**
+     * captured and slightly modified from p-iteration package
+     */
+    forEach: (callback: (currentValue: T, index: number, array: T[]) => void) => Promise<void>;
+    forEachSeries: (callback: (currentValue: T, index: number, array: T[]) => void) => Promise<void>;
+    map: <U> (callback: (currentValue: T, index: number, array: T[]) => U | Promise<U>) => Promise<U[]>;
+    mapSeries: <U> (callback: (currentValue: T, index: number, array: T[]) => U | Promise<U>) => Promise<U[]>;
+    find: (callback: (currentValue: T, index: number, array: T[]) => boolean | Promise<boolean>) => Promise<T>;
+    findSeries: (callback: (currentValue: T, index: number, array: T[]) => boolean | Promise<boolean>) => Promise<T>;
+    findIndex: (callback: (currentValue: T, index: number, array: T[]) => boolean | Promise<boolean>) => Promise<number>;
+    findIndexSeries: (callback: (currentValue: T, index: number, array: T[]) => boolean | Promise<boolean>) => Promise<number>;
+    some: (callback: (currentValue: T, index: number, array: T[]) => boolean | Promise<boolean>) => Promise<boolean>;
+    someSeries: (callback: (currentValue: T, index: number, array: T[]) => boolean | Promise<boolean>) => Promise<boolean>;
+    every: (callback: (currentValue: T, index: number, array: T[]) => boolean | Promise<boolean>) => Promise<boolean>;
+    everySeries: (callback: (currentValue: T, index: number, array: T[]) => boolean | Promise<boolean>) => Promise<boolean>;
+    filter: (callback: (currentValue: T, index: number, array: T[]) => boolean | Promise<boolean>) => Promise<T[]>;
+    filterSeries: (callback: (currentValue: T, index: number, array: T[]) => boolean | Promise<boolean>) => Promise<T[]>;
+    reduce: <U> (callback: (accumulator: U, currentValue: T, currentIndex: number, array: T[]) => U | Promise<U>) => Promise<U>;
+}
+
 interface InstanceBase extends EventEmitter, SessionFlags {
     /**
      * Session id for the current running session
@@ -210,7 +252,7 @@ export interface BrowserBase extends InstanceBase, CustomInstanceCommands<Webdri
 /**
  * export a browser interface that can be used for typing plugins
  */
-interface BrowserAsync extends BrowserBase, BrowserCommandsType, ProtocolCommandsAsync {}
+interface BrowserAsync extends BrowserBase, BrowserCommandsTypeAsync, ProtocolCommandsAsync {}
 interface BrowserSync extends BrowserBase, BrowserCommandsTypeSync, ProtocolCommands {}
 export type Browser<Mode extends 'sync' | 'async'> = Mode extends 'sync' ? BrowserSync : BrowserAsync
 
@@ -249,7 +291,7 @@ export interface ElementBase extends InstanceBase, ElementReference, CustomInsta
     error?: Error
 }
 
-interface ElementAsync extends ElementBase, ProtocolCommandsAsync, Omit<BrowserCommandsType, keyof ElementCommandsType>, ElementCommandsType {}
+interface ElementAsync extends ElementBase, ProtocolCommandsAsync, Omit<BrowserCommandsType, keyof ElementCommandsType>, ElementCommandsTypeAsync {}
 interface ElementSync extends ElementBase, ProtocolCommands, Omit<BrowserCommandsTypeSync, keyof ElementCommandsTypeSync>, ElementCommandsTypeSync {}
 export type Element<Mode extends 'sync' | 'async'> = Mode extends 'sync' ? ElementSync : ElementAsync
 

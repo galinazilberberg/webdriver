@@ -9,14 +9,14 @@ import {
 } from './utils'
 import {
     wrapCommand, runFnInFiberContext, executeHooksWithArgs,
-    hasWdioSyncSupport, executeSync, executeAsync,
+    hasWdioSyncSupport, executeSync, executeAsync
 } from './shim'
 import { testFnWrapper, runTestInFiberContext } from './test-framework'
 import {
     isW3C, capabilitiesEnvironmentDetector,
     sessionEnvironmentDetector, devtoolsEnvironmentDetector
 } from './envDetector'
-import { UNICODE_CHARACTERS } from './constants'
+import { UNICODE_CHARACTERS, ELEMENT_QUERY_COMMANDS, ELEMENT_PROPS } from './constants'
 
 export {
     initialisePlugin,
@@ -55,5 +55,7 @@ export {
     /**
      * constants
      */
-    UNICODE_CHARACTERS
+    UNICODE_CHARACTERS,
+    ELEMENT_QUERY_COMMANDS,
+    ELEMENT_PROPS
 }

@@ -79,3 +79,8 @@ export const UNICODE_CHARACTERS = {
     'Zenkaku_Hankaku': '\uE040',
     'ZenkakuHankaku': '\uE040'
 }
+
+export const ELEMENT_QUERY_COMMANDS = ['$$', 'custom$$', 'shadow$$', 'react$$'] as const
+export const ELEMENTS_QUERY_COMMANDS = ['$', 'custom$', 'shadow$', 'react$'] as const
+export const QUERY_COMMANDS = [...ELEMENT_QUERY_COMMANDS, ...ELEMENTS_QUERY_COMMANDS]
+export const ELEMENT_PROPS = ['elementId', 'error', 'selector', 'parent', 'index', 'isReactElement', 'length'] as const
